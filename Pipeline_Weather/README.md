@@ -1,4 +1,4 @@
-# 🌦️ Weather Pipeline
+# Weather Pipeline
 
 Pipeline de Engenharia de Dados desenvolvido para consumir dados meteorológicos da API **Visual Crossing**, realizar o processo completo de **ETL (Extract, Transform e Load)**, armazenar os dados em um banco **PostgreSQL** hospedado no **Supabase** e disponibilizá-los para análise em ferramentas de Business Intelligence, como o **Power BI**.
 
