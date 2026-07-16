@@ -1,3 +1,5 @@
+<img width="1234" height="891" alt="image" src="https://github.com/user-attachments/assets/290cdcf0-3b2f-430e-a23a-44e447500b9c" />
+
 # Projects Data Engineer
 
 Repositório destinado ao desenvolvimento de projetos práticos em **Engenharia de Dados**, abordando desde a ingestão de dados até sua disponibilização para análise, utilizando ferramentas e boas práticas do mercado.
