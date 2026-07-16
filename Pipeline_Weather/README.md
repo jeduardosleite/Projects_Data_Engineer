@@ -1,3 +1,9 @@
+## [Linkedin](https://www.linkedin.com/in/jeduardosleite/)
+
+<p align="center">
+  <img src="imagem/capa.jpg" width="400">
+</p>
+
 # Weather Pipeline
 
 Pipeline de Engenharia de Dados desenvolvido para consumir dados meteorológicos da API **Visual Crossing**, realizar o processo completo de **ETL (Extract, Transform e Load)**, armazenar os dados em um banco **PostgreSQL** hospedado no **Supabase** e disponibilizá-los para análise em ferramentas de Business Intelligence, como o **Power BI**.
@@ -46,33 +52,6 @@ O projeto contempla:
 
 ---
 
-# Estrutura do Projeto
-
-```text
-weather_pipeline/
-│
-├── dags/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── logs/
-│
-├── src/
-│   ├── config.py
-│   ├── database.py
-│   ├── extract.py
-│   ├── transform.py
-│   └── load.py
-│
-├── .env
-├── requirements.txt
-└── README.md
-```
-
----
-
 # Arquitetura do Pipeline
 
 ```text
@@ -106,18 +85,20 @@ weather_pipeline/
 
 # Como Executar o Projeto
 
+Siga os passos abaixo para configurar e executar o pipeline ETL meteorológico em sua máquina.
+
 ## 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/SEU_USUARIO/weather_pipeline.git
+git clone https://github.com/jeduardosleite/Projects_Data_Engineer.git
 ```
 
 ---
 
-## 2. Acessar a pasta
+## 2. Acessar a pasta do projeto
 
 ```bash
-cd weather_pipeline
+cd Projects_Data_Engineer/Pipeline_Weather
 ```
 
 ---
@@ -132,10 +113,16 @@ python3 -m venv .venv
 
 ## 4. Ativar o ambiente virtual
 
-Linux / Ubuntu / WSL
+### Linux / Ubuntu / WSL
 
 ```bash
 source .venv/bin/activate
+```
+
+### Windows (PowerShell)
+
+```powershell
+.venv\Scripts\Activate.ps1
 ```
 
 ---
@@ -148,17 +135,13 @@ pip install -r requirements.txt
 
 ---
 
-## 6. Criar o arquivo `.env`
+## 6. Configurar as variáveis de ambiente
 
-Na raiz do projeto, criar um arquivo chamado:
-
-```text
-.env
-```
+Crie um arquivo chamado `.env` na raiz do projeto.
 
 Exemplo:
 
-```text
+```env
 VC_API_KEY=SUA_CHAVE_DA_API
 
 DB_HOST=xxxxxxxx.supabase.co
@@ -172,7 +155,9 @@ DB_PASSWORD=SUA_SENHA
 
 ## 7. Executar o pipeline
 
-### Extração
+### Extração dos dados
+
+Responsável por consumir a API meteorológica e salvar os dados brutos.
 
 ```bash
 python3 src/extract.py
@@ -180,7 +165,9 @@ python3 src/extract.py
 
 ---
 
-### Transformação
+### Transformação dos dados
+
+Realiza a limpeza, padronização e preparação dos dados para carga.
 
 ```bash
 python3 src/transform.py
@@ -188,13 +175,45 @@ python3 src/transform.py
 
 ---
 
-### Carga
+### Carga dos dados
+
+Insere ou atualiza os dados processados no banco PostgreSQL (Supabase).
 
 ```bash
 python3 src/load.py
 ```
 
 ---
+
+## Estrutura do Pipeline
+
+```
+API Visual Crossing
+        │
+        ▼
+extract.py
+        │
+        ▼
+transform.py
+        │
+        ▼
+load.py
+        │
+        ▼
+PostgreSQL (Supabase)
+```
+
+---
+
+## Tecnologias Utilizadas
+
+- Python 3.12
+- Pandas
+- Requests
+- SQLAlchemy
+- PostgreSQL
+- Supabase
+- Python Dotenv
 
 # Etapas do Pipeline
 
