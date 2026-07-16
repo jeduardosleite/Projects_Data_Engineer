@@ -1,4 +1,11 @@
-## [Linkedin](https://www.linkedin.com/in/jeduardosleite/)
+## Autor
+Graduando em Ciências de Dados, pela Uninter.
+
+Estagiário na iSystems.
+
+### [Linkedin](https://www.linkedin.com/in/jeduardosleite/)
+
+---
 
 <p align="center">
   <img src="imagem/capa.jpg" width="400">
@@ -430,17 +437,3 @@ Além dos conhecimentos técnicos, o projeto reforçou a importância da organiz
 - Expandir o pipeline para múltiplas cidades;
 - Implementar testes automatizados;
 - Adicionar monitoramento e tratamento de falhas.
-
----
-
-# Autor
-
-**José Eduardo de Souza Leite**
-
-Graduando em Ciência de Dados
-
-Estagiário em Engenharia de Dados
-
-LinkedIn: *(adicione seu perfil)*
-
-GitHub: *(adicione seu GitHub)*
