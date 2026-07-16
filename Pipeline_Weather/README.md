@@ -4,13 +4,13 @@
   <img src="imagem/capa.jpg" width="400">
 </p>
 
-# Weather Pipeline
+<h1 align="center">Weather Pipeline</h1>
 
 Pipeline de Engenharia de Dados desenvolvido para consumir dados meteorológicos da API **Visual Crossing**, realizar o processo completo de **ETL (Extract, Transform e Load)**, armazenar os dados em um banco **PostgreSQL** hospedado no **Supabase** e disponibilizá-los para análise em ferramentas de Business Intelligence, como o **Power BI**.
 
 ---
 
-# Objetivo do Projeto
+<h1 align="center">Objetivo do Projeto</h1>
 
 O principal objetivo deste projeto é desenvolver um pipeline completo de Engenharia de Dados, simulando um cenário real encontrado em ambientes corporativos.
 
@@ -27,7 +27,7 @@ O projeto contempla:
 
 ---
 
-# Ferramentas Utilizadas
+<h1 align="center">Ferramentas Utilizadas</h1>
 
 - Visual Studio Code
 - Ubuntu (WSL)
@@ -40,7 +40,7 @@ O projeto contempla:
 
 ---
 
-# Tecnologias Utilizadas
+<h1 align="center">Tecnologias Utilizadas</h1>
 
 - Python 3.12
 - Pandas
@@ -52,7 +52,7 @@ O projeto contempla:
 
 ---
 
-# Arquitetura do Pipeline
+<h1 align="center">Arquitetura do Projeto</h1>
 
 ```text
               Visual Crossing API
@@ -83,9 +83,37 @@ O projeto contempla:
 
 ---
 
-# Como Executar o Projeto
+<h1 align="center">Como Executar o Projeto</h1>
 
-Siga os passos abaixo para configurar e executar o pipeline ETL meteorológico em sua máquina.
+Antes de executar o pipeline, é necessário configurar os serviços utilizados pelo projeto.
+
+## Pré-requisitos
+
+O pipeline utiliza uma API para obtenção dos dados meteorológicos e um banco de dados PostgreSQL hospedado no Supabase. Portanto, antes de iniciar a configuração do ambiente, siga estes passos:
+
+### 1. Criar uma conta no Supabase
+
+Acesse: https://supabase.com/
+
+Crie um novo projeto e anote as seguintes informações, que serão utilizadas no arquivo `.env`:
+
+- **Host**
+- **Port**
+- **Database**
+- **User**
+- **Password**
+
+---
+
+### 2. Criar uma conta na Visual Crossing Weather API
+
+Acesse: https://www.visualcrossing.com/
+
+Após criar sua conta, gere uma **API Key**, que também será utilizada no arquivo `.env`.
+
+---
+
+Após concluir essas configurações, siga os passos abaixo para executar o pipeline ETL.
 
 ## 1. Clonar o repositório
 
@@ -139,8 +167,6 @@ pip install -r requirements.txt
 
 Crie um arquivo chamado `.env` na raiz do projeto.
 
-Exemplo:
-
 ```env
 VC_API_KEY=SUA_CHAVE_DA_API
 
@@ -182,7 +208,6 @@ Insere ou atualiza os dados processados no banco PostgreSQL (Supabase).
 ```bash
 python3 src/load.py
 ```
-
 ---
 
 ## Estrutura do Pipeline
@@ -347,7 +372,7 @@ Essa prática evita expor credenciais no GitHub.
 
 ---
 
-# Problemas Enfrentados
+<h1 align="center">Problemas Enfrentados</h1>
 
 Este foi o primeiro projeto em que desenvolvi um pipeline completo de Engenharia de Dados, desde a extração dos dados até o carregamento em um banco PostgreSQL.
 
@@ -370,7 +395,7 @@ Todos esses problemas contribuíram para compreender melhor o funcionamento de u
 
 ---
 
-# Aprendizados
+<h1 align="center">Aprendizados</h1>
 
 Este projeto representou um importante passo na minha formação como Engenheiro de Dados.
 
