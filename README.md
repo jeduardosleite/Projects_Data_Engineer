@@ -46,9 +46,6 @@ O objetivo deste repositório é documentar minha evolução na área, consolida
 - AWS
   - S3
   - Athena
-  - Glue
-  - Lambda *(em estudos)*
-  - Redshift *(em estudos)*
 
 ### Business Intelligence
 
