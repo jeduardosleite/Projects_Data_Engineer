@@ -1,6 +1,6 @@
 <img width="1234" height="891" alt="image" src="https://github.com/user-attachments/assets/290cdcf0-3b2f-430e-a23a-44e447500b9c" />
 
-# Projects Data Engineer
+<h1 align="center">Projects Data Engineer</h1>
 
 Repositório destinado ao desenvolvimento de projetos práticos em **Engenharia de Dados**, abordando desde a ingestão de dados até sua disponibilização para análise, utilizando ferramentas e boas práticas do mercado.
 
@@ -8,7 +8,7 @@ O objetivo deste repositório é documentar minha evolução na área, consolida
 
 ---
 
-# Objetivos
+<h1 align="center">Objetivos</h1> 
 
 - Desenvolver projetos completos de Engenharia de Dados.
 - Aplicar conceitos de ETL/ELT.
@@ -20,7 +20,7 @@ O objetivo deste repositório é documentar minha evolução na área, consolida
 
 ---
 
-# Tecnologias e Ferramentas
+<h1 align="center">Tecnologias e Ferramentas</h1>
 
 ### Linguagens
 
@@ -67,7 +67,7 @@ O objetivo deste repositório é documentar minha evolução na área, consolida
 
 ---
 
-# Competências Desenvolvidas
+<h1 align="center">Competências Desenvolvidas</h1>
 
 - Engenharia de Dados
 - Modelagem de Dados
@@ -81,7 +81,7 @@ O objetivo deste repositório é documentar minha evolução na área, consolida
 
 ---
 
-# Sobre
+<h1 align="center">Sobre</h1>
 
 Sou estudante de **Ciência de Dados** e atuo como **Estagiário em Engenharia de Dados**, buscando aprofundar conhecimentos em pipelines de dados, bancos de dados, cloud computing e arquitetura de dados.
 
