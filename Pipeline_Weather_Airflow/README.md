@@ -195,8 +195,18 @@ DB_PASSWORD=
 
 ```bash
 # Define onde o Airflow armazenará banco de dados, DAGs, logs e configurações.
-export AIRFLOW_HOME=$(pwd)/airflow
+export AIRFLOW__CORE__DAGS_FOLDER="$(pwd)/dags"
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
 ```
+
+## Validar a configuração
+```bash
+airflow config get-value core dags_folder
+airflow dags list-import-errors
+airflow dags list --local | grep weather
+```
+
+a **saída** esperada é: *<diretorio-do-projeto>/dags*
 
 ---
 
