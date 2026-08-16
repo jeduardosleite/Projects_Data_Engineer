@@ -1,39 +1,33 @@
-## Autor
-Graduando em Ciências de Dados, pela Uninter.
+## Autor 
+Graduando em Ciências de Dados, pela Uninter. 
+Estagiário na iSystems. 
 
-Estagiário na iSystems.
+### [Linkedin](https://www.linkedin.com/in/jeduardosleite/) 
+--- 
 
-### [Linkedin](https://www.linkedin.com/in/jeduardosleite/)
-
----
+# Weather Pipeline com Apache Airflow
 
 <p align="center">
-  <img src="imagem/capa.png" width="400">
+  <img src="imagem/capa.png" width="400" alt="Weather Pipeline com Apache Airflow">
 </p>
 
-<h1 align="center">Weather Pipeline com Apache Airflow</h1>
+## Sobre o projeto
 
-Este projeto é uma continuação do `Pipeline_Weather`, disponível neste
-mesmo repositório.
+Este projeto é uma evolução do **Pipeline Weather**, disponível neste mesmo repositório.
 
 [Consultar a primeira etapa do projeto](../Pipeline_Weather)
 
-Este projeto tem como objetivo automatizar um pipeline ETL (Extract, Transform, Load) para coleta, tratamento e armazenamento de dados meteorológicos, utilizando o Apache Airflow para orquestração das tarefas.
+O objetivo é desenvolver e orquestrar um pipeline de dados meteorológicos utilizando **Apache Airflow**, automatizando as etapas de extração, transformação, validação e carregamento dos dados.
 
-O pipeline realiza diariamente as seguintes etapas:
+Os dados são obtidos por meio da **Visual Crossing Weather API**, tratados com **Pandas** e armazenados em um banco **PostgreSQL hospedado no Supabase**.
 
-- Extração de dados meteorológicos por meio da API Visual Crossing Weather;
-- Transformação e padronização dos dados utilizando Pandas;
-- Carregamento dos dados em um banco PostgreSQL hospedado no Supabase;
-- Orquestração automática de todo o processo utilizando Apache Airflow.
-
-O projeto foi desenvolvido com foco em boas práticas de Engenharia de Dados, incluindo modularização do código, separação das responsabilidades, utilização de variáveis de ambiente, versionamento com Git e automação do fluxo de dados.
+Além do fluxo ETL, o pipeline possui uma rotina de **reconciliação de dados**, responsável por identificar automaticamente datas ausentes no banco e recuperar os períodos faltantes.
 
 ---
 
-# Arquitetura do Projeto
+## Arquitetura do Projeto
 
-```
+```text
 Pipeline_Weather_Airflow/
 │
 ├── dags/
@@ -45,7 +39,8 @@ Pipeline_Weather_Airflow/
 │   ├── database.py
 │   ├── extract.py
 │   ├── transform.py
-│   └── load.py
+│   ├── load.py
+│   └── quality.py
 │
 ├── data/
 │   ├── raw/
@@ -59,76 +54,235 @@ Pipeline_Weather_Airflow/
 └── .gitignore
 ```
 
+### Responsabilidade dos módulos
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `weather_dag.py` | Orquestração das tarefas com Apache Airflow |
+| `config.py` | Configurações gerais do pipeline |
+| `database.py` | Conexão com PostgreSQL |
+| `extract.py` | Extração dos dados da API |
+| `transform.py` | Tratamento e padronização dos dados |
+| `load.py` | Carga dos dados no PostgreSQL |
+| `quality.py` | Validação do período esperado e identificação de gaps |
+
 ---
 
-# Ferramentas e Tecnologias
+# Fluxo do Pipeline
 
-## Linguagem Python
+A DAG executa o seguinte fluxo:
 
-- pandas
-- datetime
-- pathlib
-- requests
-- logging
-- os
+```text
+Check Missing Dates
+        │
+        ▼
+Has Missing Dates?
+        │
+        ▼
+     Extract
+        │
+        ▼
+    Transform
+        │
+        ▼
+      Load
+```
+
+Antes de iniciar o ETL, o pipeline verifica quais datas deveriam existir no banco.
+
+O período esperado é:
+
+```text
+01/01 do ano atual → hoje + 7 dias
+```
+
+Caso existam lacunas, as datas faltantes são identificadas e agrupadas em intervalos consecutivos.
+
+Por exemplo:
+
+```text
+Dados existentes:
+
+01/08
+02/08
+13/08
+14/08
+```
+
+O pipeline identifica:
+
+```text
+03/08 → 12/08
+```
+
+Somente o intervalo necessário é solicitado novamente à API.
+
+Caso nenhuma data esteja faltando, a DAG pode encerrar o processamento sem realizar uma chamada desnecessária à API.
+
+---
+
+# Etapas do Pipeline
+
+## 1. Data Quality
+
+Antes da extração, o pipeline consulta o PostgreSQL e compara os registros existentes com o período esperado.
+
+Responsabilidades:
+
+- calcular o período esperado;
+- consultar as datas existentes no banco;
+- identificar datas ausentes;
+- agrupar datas consecutivas em intervalos;
+- evitar chamadas desnecessárias à API.
+
+Essa etapa torna o pipeline capaz de realizar **reconciliação automática dos dados**.
+
+---
+
+## 2. Extract
+
+Responsável por consumir a **Visual Crossing Weather API**.
+
+Principais atividades:
+
+- receber cidade e intervalo de datas;
+- construir dinamicamente a URL da API;
+- realizar a extração dos dados meteorológicos;
+- armazenar os dados brutos na camada `raw`;
+- registrar logs da execução.
+
+Exemplo de intervalo solicitado:
+
+```text
+Florianopolis
+2026-08-03 → 2026-08-12
+```
+
+---
+
+## 3. Transform
+
+Responsável pela preparação dos dados antes da carga.
+
+Principais tratamentos:
+
+- validação das colunas recebidas;
+- seleção das colunas relevantes;
+- padronização dos nomes;
+- conversão de datas e horários;
+- tratamento de valores nulos;
+- normalização de textos;
+- remoção de registros duplicados;
+- inclusão da data de processamento;
+- ordenação dos dados.
+
+A combinação:
+
+```text
+cidade + data
+```
+
+é utilizada como chave de negócio para identificar cada registro meteorológico.
+
+---
+
+## 4. Load
+
+Responsável pelo carregamento dos dados no PostgreSQL.
+
+O processo utiliza uma tabela de **staging** antes da atualização da tabela final.
+
+Fluxo:
+
+```text
+DataFrame
+    │
+    ▼
+Staging Table
+    │
+    ▼
+UPSERT
+    │
+    ▼
+project_weather_daily
+```
+
+O PostgreSQL utiliza:
+
+```sql
+ON CONFLICT (cidade, data)
+DO UPDATE
+```
+
+Com isso:
+
+- novos registros são inseridos;
+- registros existentes são atualizados;
+- duplicidades são evitadas;
+- reprocessamentos podem ser realizados com segurança.
+
+---
+
+# Tecnologias Utilizadas
+
+## Linguagem e processamento
+
+- Python
+- Pandas
 - SQLAlchemy
 - psycopg2-binary
+- python-dotenv
+- Pendulum
+- Logging
+- pathlib
 
 ## Orquestração
 
 - Apache Airflow
 - DAG
 - PythonOperator
+- ShortCircuitOperator
+- XCom
 
 ## Banco de Dados
 
 - PostgreSQL
 - Supabase
 
-## Configuração
-
-- python-dotenv
-
 ## API
 
 - Visual Crossing Weather API
 
-## Versionamento
+## Desenvolvimento
 
 - Git
 - GitHub
-
-## Ambiente
-
 - Ubuntu Linux
 - VS Code
 
 ---
 
-# Como clonar o projeto
+# Como executar o projeto
 
 ## 1. Clonar o repositório
 
 ```bash
-# Faz uma cópia do repositório remoto para sua máquina.
 git clone https://github.com/jeduardosleite/Projects_Data_Engineer.git
 ```
 
 ---
 
-## 2. Entrar na pasta do projeto
+## 2. Acessar o projeto
 
 ```bash
-# Acessa o diretório do projeto.
 cd Projects_Data_Engineer/Pipeline_Weather_Airflow
 ```
 
 ---
 
-## 3. Criar um ambiente virtual
+## 3. Criar o ambiente virtual
 
 ```bash
-# Cria um ambiente Python isolado para evitar conflitos entre dependências.
 python3 -m venv .venv
 ```
 
@@ -139,14 +293,12 @@ python3 -m venv .venv
 ### Linux
 
 ```bash
-# Ativa o ambiente virtual criado anteriormente.
 source .venv/bin/activate
 ```
 
-### Windows
+### Windows PowerShell
 
 ```powershell
-# Ativa o ambiente virtual no PowerShell.
 .venv\Scripts\Activate.ps1
 ```
 
@@ -155,27 +307,14 @@ source .venv/bin/activate
 ## 5. Instalar as dependências
 
 ```bash
-# Instala todas as bibliotecas utilizadas pelo projeto.
 pip install -r requirements.txt
 ```
 
 ---
 
-## 6. Configurar as variáveis de ambiente
+# Variáveis de Ambiente
 
-Crie um arquivo chamado:
-
-```
-.env
-```
-
-Baseando-se no arquivo:
-
-```
-.env.example
-```
-
-Configure as seguintes variáveis:
+Crie um arquivo `.env` baseado no `.env.example`.
 
 ```text
 VC_API_KEY=
@@ -187,189 +326,237 @@ DB_USER=
 DB_PASSWORD=
 ```
 
+> O arquivo `.env` contém informações sensíveis e não deve ser versionado no Git.
+
 ---
 
-# Como inicializar o Apache Airflow
+# Configuração do Apache Airflow
 
-## 1. Definir a pasta do Airflow
+## 1. Configurar o diretório das DAGs
+
+Na raiz do projeto:
 
 ```bash
-# Define onde o Airflow armazenará banco de dados, DAGs, logs e configurações.
-export AIRFLOW__CORE__DAGS_FOLDER="$(pwd)/dags"
+export AIRFLOW_HOME="$PWD/airflow"
+export AIRFLOW__CORE__DAGS_FOLDER="$PWD/dags"
 export AIRFLOW__CORE__LOAD_EXAMPLES=False
 ```
 
-## Validar a configuração
+Para validar:
+
 ```bash
 airflow config get-value core dags_folder
-airflow dags list-import-errors
-airflow dags list --local | grep weather
 ```
 
-a **saída** esperada é: *<diretorio-do-projeto>/dags*
+A saída esperada deve apontar para:
+
+```text
+<diretorio-do-projeto>/dags
+```
 
 ---
 
-## 2. Inicializar o banco de dados
+## 2. Inicializar o banco interno do Airflow
 
 ```bash
-# Cria o banco interno utilizado pelo Airflow.
 airflow db migrate
 ```
 
 ---
 
-## 3. Criar um usuário administrador
+## 3. Validar a DAG
+
+Verifique possíveis erros de importação:
 
 ```bash
-# Cria um usuário para acessar a interface Web do Airflow.
-airflow users create \
---username admin \
---firstname Jose \
---lastname Leite \
---role Admin \
---email seu@email.com
+airflow dags list-import-errors --local
 ```
 
-O comando solicitará a senha durante a execução.
+Resultado esperado:
+
+```text
+No data found
+```
+
+Liste a DAG:
+
+```bash
+airflow dags list --local | grep weather
+```
+
+A DAG esperada é:
+
+```text
+weather_pipeline_daily
+```
 
 ---
 
-## 4. Iniciar o Scheduler
+## 4. Testar a DAG localmente
 
 ```bash
-# Responsável por identificar quando uma DAG deve ser executada.
+airflow dags test weather_pipeline_daily
+```
+
+Durante a execução, a DAG:
+
+1. calcula o período esperado;
+2. consulta as datas existentes no PostgreSQL;
+3. identifica possíveis gaps;
+4. agrupa períodos consecutivos;
+5. extrai somente os dados necessários;
+6. transforma os dados;
+7. realiza o UPSERT no PostgreSQL.
+
+---
+
+# Interface Web do Airflow
+
+## Iniciar o Scheduler
+
+Abra um terminal, ative o ambiente virtual e configure o Airflow:
+
+```bash
+source .venv/bin/activate
+
+export AIRFLOW_HOME="$PWD/airflow"
+export AIRFLOW__CORE__DAGS_FOLDER="$PWD/dags"
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+
 airflow scheduler
 ```
 
-Abra um novo terminal.
+Mantenha esse terminal aberto.
 
 ---
 
-## 5. Iniciar o Webserver
+## Iniciar a interface Web
+
+Em outro terminal:
 
 ```bash
-# Inicia a interface Web do Airflow.
-airflow webserver --port 8080
+source .venv/bin/activate
+
+export AIRFLOW_HOME="$PWD/airflow"
+export AIRFLOW__CORE__DAGS_FOLDER="$PWD/dags"
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+airflow api-server --port 8080
 ```
 
----
+Depois, acesse:
 
-## 6. Acessar o Airflow
-
-Abra o navegador:
-
-```
+```text
 http://localhost:8080
 ```
 
-Faça login com o usuário criado anteriormente.
-
 ---
 
-# Fluxo do Pipeline
+# Validando a Qualidade dos Dados
 
-A DAG executa diariamente o seguinte fluxo:
+Uma consulta SQL pode ser utilizada para verificar se existem datas faltantes entre o início do ano e os próximos sete dias:
 
+```sql
+SELECT d::date AS data_faltante
+FROM generate_series(
+    DATE_TRUNC('year', CURRENT_DATE)::date,
+    CURRENT_DATE + INTERVAL '7 days',
+    INTERVAL '1 day'
+) AS d
+LEFT JOIN project_weather_daily AS w
+    ON w.data = d::date
+    AND w.cidade = 'Florianopolis'
+WHERE w.data IS NULL
+ORDER BY d;
 ```
-Extract
-      │
-      ▼
-Transform
-      │
-      ▼
-Load
+
+Se o pipeline estiver sincronizado, a consulta não deverá retornar datas ausentes.
+
+---
+
+# Principais Desafios
+
+## Integração entre Airflow e módulos Python
+
+Foi necessário estruturar o projeto de forma modular para permitir que as DAGs importassem corretamente os módulos de configuração, extração, transformação, qualidade e carga.
+
+---
+
+## Reconciliação de dados
+
+Durante os testes foram identificadas lacunas no histórico armazenado no PostgreSQL.
+
+Para resolver o problema, foi implementada uma etapa de qualidade que:
+
+1. determina o período esperado;
+2. consulta os registros existentes;
+3. identifica as datas faltantes;
+4. agrupa gaps consecutivos;
+5. solicita novamente apenas os períodos necessários.
+
+Com isso, o pipeline passou a ser capaz de **identificar e corrigir automaticamente lacunas nos dados**.
+
+---
+
+## UPSERT no PostgreSQL
+
+A carga utiliza uma estratégia de UPSERT para garantir idempotência.
+
+A combinação:
+
+```text
+cidade + data
 ```
 
-## Extract
+identifica unicamente um registro.
 
-Responsável por:
-
-- consumir a API Visual Crossing;
-- salvar os dados brutos;
-- registrar logs da extração.
-
----
-
-## Transform
-
-Responsável por:
-
-- tratar valores nulos;
-- padronizar nomes das colunas;
-- remover registros duplicados;
-- converter tipos de dados;
-- preparar os dados para carga.
-
----
-
-## Load
-
-Responsável por:
-
-- conectar ao PostgreSQL;
-- criar tabela temporária;
-- realizar UPSERT;
-- atualizar registros existentes;
-- inserir novos registros.
-
----
-
-# Principais desafios encontrados
-
-Durante o desenvolvimento do projeto foram encontrados diversos desafios técnicos, entre eles:
-
-## Integração entre Airflow e projeto Python
-
-Foi necessário estruturar o projeto de forma modular para que as DAGs pudessem importar corretamente os módulos responsáveis pela extração, transformação e carga.
-
----
-
-## Organização da arquitetura
-
-O projeto foi reorganizado seguindo uma estrutura em camadas, separando responsabilidades entre:
-
-- configuração;
-- conexão com banco;
-- extração;
-- transformação;
-- carga;
-- orquestração.
-
-Essa abordagem facilita a manutenção e a escalabilidade do código.
-
----
-
-## Upsert no PostgreSQL
-
-A implementação da carga exigiu o desenvolvimento de uma estratégia de UPSERT utilizando SQLAlchemy e PostgreSQL, garantindo que registros existentes fossem atualizados e novos registros fossem inseridos sem duplicidade.
-
----
-
-## Tratamento de dados
-
-Foi necessário implementar regras para:
-
-- normalização de textos;
-- conversão de datas e horários;
-- tratamento de valores nulos;
-- eliminação de registros duplicados.
+Assim, executar novamente determinado período não deve gerar registros duplicados.
 
 ---
 
 ## Configuração do Airflow
 
-Outro desafio foi configurar corretamente o ambiente do Apache Airflow, incluindo:
+Durante o desenvolvimento também foi necessário configurar corretamente:
 
-- criação do banco interno;
-- configuração do scheduler;
-- inicialização do webserver;
-- organização das DAGs.
+- `AIRFLOW_HOME`;
+- diretório das DAGs;
+- banco interno do Airflow;
+- Scheduler;
+- API Server;
+- importação dos módulos Python;
+- validação e execução local das DAGs.
+
+---
+
+## Tratamento dos dados
+
+Foram implementadas regras para:
+
+- normalização de textos;
+- conversão de datas e horários;
+- tratamento de valores nulos;
+- validação de colunas;
+- eliminação de duplicidades;
+- registro da data de carga.
 
 ---
 
-## Versionamento do projeto
+# Aprendizados
 
-Durante a publicação no GitHub foram realizadas diversas correções relacionadas ao versionamento, organização da estrutura do repositório e configuração de autenticação via SSH.
+O desenvolvimento deste projeto permitiu aplicar conceitos importantes de Engenharia de Dados, como:
 
----
+- construção de pipelines ETL;
+- orquestração com Apache Airflow;
+- modularização de aplicações Python;
+- integração com APIs;
+- manipulação de dados com Pandas;
+- integração com PostgreSQL;
+- staging tables;
+- UPSERT;
+- idempotência;
+- Data Quality;
+- detecção de gaps;
+- reconciliação de dados;
+- logging;
+- gerenciamento de variáveis de ambiente;
+- versionamento com Git.
