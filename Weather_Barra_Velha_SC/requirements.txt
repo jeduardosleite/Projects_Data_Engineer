@@ -1,0 +1,7 @@
+requests          # para fazer chamadas à API de clima
+python-dotenv     # para ler variáveis de ambiente (.env)
+pandas            # para manipulação de dados
+numpy             # para cálculos estatísticos
+matplotlib        # para gráficos
+seaborn           # para gráficos estatísticos/heatmaps
+sqlite3           # já vem com Python, não precisa colocar
