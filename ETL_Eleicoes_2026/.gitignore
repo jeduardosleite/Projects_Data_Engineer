@@ -1,0 +1,71 @@
+#.venv/	        Pode ser recriado pelo requirements.txt
+#.env	        Contém as credenciais do Supabase
+#password.txt	Pode conter senhas privadas
+#data/	        Contém dados que podem ser extraídos novamente
+#__pycache__/	Gerado automaticamente pelo Python
+#.vscode/	    Configurações locais do editor
+#*.log	        Registros gerados durante a execução
+#.env.example	Deve ser versionado, pois serve como documentação
+
+
+# ==========================================
+# Ambiente virtual Python
+# ==========================================
+.venv/
+venv/
+env/
+
+# ==========================================
+# Credenciais e informações sensíveis
+# ==========================================
+.env
+.env.*
+!.env.example
+password.txt
+credentials.json
+secrets.json
+
+# ==========================================
+# Cache e arquivos compilados do Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# Dados brutos e processados
+# ==========================================
+data/
+
+# ==========================================
+# Arquivos gerados durante os testes
+# ==========================================
+testes/*.csv
+testes/*.json
+testes/*.xlsx
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+
+# ==========================================
+# Configurações locais das IDEs
+# ==========================================
+.vscode/
+.idea/
+
+# ==========================================
+# Jupyter Notebook
+# ==========================================
+.ipynb_checkpoints/
+
+# ==========================================
+# Arquivos do sistema operacional
+# ==========================================
+.DS_Store
+Thumbs.db
